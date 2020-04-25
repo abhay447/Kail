@@ -2,37 +2,35 @@ import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kail/notification_manager.dart';
 
 
-printHello() {
-  final DateTime now = DateTime.now();
-  final int isolateId = Isolate.current.hashCode;
-
-  NotificationManager().init();
-  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    'your channel id', 'your channel name', 'your channel description',
-    importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
-  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-  var platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  NotificationManager().flutterLocalNotificationsPlugin.show(
-      0, 'plain title', 'plain body', platformChannelSpecifics,
-      payload: 'item x');
-  print("[$now] Hello, world! isolate=${isolateId} function='$printHello'"); 
-}
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final int helloAlarmID = 0;
-  await AndroidAlarmManager.initialize();
-  
   runApp(MyApp());
+  
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+  var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+  var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,onSelectNotification: selectNotification);
+  
+  var androidPlatformChannelSpecifics =
+    AndroidNotificationDetails('repeating channel id',
+        'repeating channel name', 'repeating description');
+  var iOSPlatformChannelSpecifics =
+      IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(
+    0, 'plain title', 'plain body', platformChannelSpecifics,
+    payload: 'item x');
+  await flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
+      'repeating body', RepeatInterval.EveryMinute, platformChannelSpecifics);
 
-  await AndroidAlarmManager.periodic(const Duration(seconds: 5), helloAlarmID, printHello);
 }
 class MyApp extends StatelessWidget {
   final wordPair = WordPair.random();
