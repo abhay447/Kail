@@ -1,15 +1,8 @@
-import 'dart:isolate';
-
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:kail/notification_manager.dart';
 
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
-  
+scheduleNotifications() async {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
   var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -28,9 +21,14 @@ void main() async {
   await flutterLocalNotificationsPlugin.show(
     0, 'plain title', 'plain body', platformChannelSpecifics,
     payload: 'item x');
-  await flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
-      'repeating body', RepeatInterval.EveryMinute, platformChannelSpecifics);
+  return flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
+      'repeating body', RepeatInterval.Hourly, platformChannelSpecifics);
+}
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+  await scheduleNotifications();
 }
 class MyApp extends StatelessWidget {
   final wordPair = WordPair.random();
@@ -40,7 +38,8 @@ class MyApp extends StatelessWidget {
       title: 'Welcome to Flutter',
       home: RandomWords(),
       theme: ThemeData(          // Add the 3 lines from here... 
-        primaryColor: Colors.white,
+        primaryColor: Colors.black,
+        brightness: Brightness.dark,
       ),  
     );
   }
@@ -137,4 +136,17 @@ class RandomWordsState extends State<RandomWords> {
 class RandomWords extends StatefulWidget {
   @override
   RandomWordsState createState() => RandomWordsState();
+}
+
+Future onDidReceiveLocalNotification(int id, String title, String body, String payload) {
+}
+
+Future selectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => SecondScreen(payload)),
+    // );
 }
