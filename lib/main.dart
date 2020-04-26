@@ -54,7 +54,7 @@ class RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) {
     return Scaffold(
     appBar: AppBar(
-        title: Text('Startup Name Generator'),
+        title: Text('Howdy'),
         actions: <Widget>[      // Add 3 lines from here...
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
         ],    
@@ -77,28 +77,49 @@ class RandomWordsState extends State<RandomWords> {
       });
   }
 
-  Widget _buildRow(WordPair pair) {
-    final bool alreadySaved = _saved.contains(pair);
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: Icon(   // Add the lines from here... 
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-      ),
-      onTap: () {      // Add 9 lines from here...
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else { 
-            _saved.add(pair); 
-          } 
-        });
-      },                 
+  Widget _buildRow(WordPair pair) => Stack(
+      alignment: const Alignment(-1.0, 0.95),
+      children: [
+        Container(
+          decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+          child: Image.asset("images/backlit-beach-dawn-dusk-588561.jpg",)
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.black45,
+          ),
+          child: Row(
+             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+             children : [
+              Text(
+                'Mia B',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'Mia B',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'Mia B',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+             ]
+          )
+        ),
+      ]
     );
-  }
 
   void _pushSaved() {
     Navigator.of(context).push(
