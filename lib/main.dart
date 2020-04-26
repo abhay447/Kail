@@ -1,6 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kail/asset_constants.dart';
+import 'package:kail/kail_activity.dart';
 
 scheduleNotifications() async {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -36,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: RandomWords(),
+      home: KailWidget(),
       theme: ThemeData(          // Add the 3 lines from here... 
         primaryColor: Colors.black,
         brightness: Brightness.dark,
@@ -45,8 +48,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
+class KailWidgetState extends State<KailWidget> {
+  final _suggestions = <KailActivity>[];
   final _biggerFont = const TextStyle(fontSize: 18.0); 
   final Set<WordPair> _saved = Set<WordPair>(); 
 
@@ -71,92 +74,71 @@ class RandomWordsState extends State<RandomWords> {
 
         final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+          // _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+          _suggestions.add(KailActivity("yoga","09:30 am",AssetConstants.IMG_YOGA));
+          _suggestions.add(KailActivity("sleep","23:00 pm",AssetConstants.IMG_SLEEP));
         }
         return _buildRow(_suggestions[index]);
       });
   }
 
-  Widget _buildRow(WordPair pair) => Stack(
+  Widget _buildRow(KailActivity kailActivity) => Stack(
       alignment: const Alignment(-1.0, 0.95),
       children: [
         Container(
           decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-          child: Image.asset("images/backlit-beach-dawn-dusk-588561.jpg",)
+          child: Image.asset(kailActivity.imageLocation)
         ),
+
         Container(
           decoration: BoxDecoration(
             color: Colors.black45,
           ),
-          child: Row(
-             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-             children : [
-              Text(
-                'Mia B',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children : [
+                  Text(
+                      kailActivity.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                  ),
+                  Text(
+                      kailActivity.nextOccurence,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                  ),
+                ]
               ),
-              Text(
-                'Mia B',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                'Mia B',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-             ]
-          )
-        ),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children : [
+                  IconButton(icon: Icon(Icons.edit), onPressed: _pushSaved),
+                  IconButton(icon: Icon(Icons.snooze), onPressed: _pushSaved),
+                  IconButton(icon: Icon(Icons.delete_forever), onPressed: _pushSaved),
+                ]
+              )
+            ]
+          ),
+        )
       ]
     );
 
   void _pushSaved() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(   // Add 20 lines from here...
-        builder: (BuildContext context) {
-          final Iterable<ListTile> tiles = _saved.map(
-            (WordPair pair) {
-              return ListTile(
-                title: Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
-            },
-          );
-          final List<Widget> divided = ListTile
-            .divideTiles(
-              context: context,
-              tiles: tiles,
-            )
-            .toList();
-
-          return Scaffold(         // Add 6 lines from here...
-            appBar: AppBar(
-              title: Text('Saved Suggestions'),
-            ),
-            body: ListView(children: divided),
-          );        
-        },
-      ),
-    );
   }
 }
 
-class RandomWords extends StatefulWidget {
+class KailWidget extends StatefulWidget {
   @override
-  RandomWordsState createState() => RandomWordsState();
+  KailWidgetState createState() => KailWidgetState();
 }
 
 Future onDidReceiveLocalNotification(int id, String title, String body, String payload) {
