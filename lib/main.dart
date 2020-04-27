@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:kail/asset_constants.dart';
+import 'package:kail/constants/asset_constants.dart';
+import 'package:kail/constants/notification_constants.dart';
 import 'package:kail/kail_activity.dart';
 
 scheduleNotifications() async {
@@ -15,8 +16,8 @@ scheduleNotifications() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,onSelectNotification: selectNotification);
   
   var androidPlatformChannelSpecifics =
-    AndroidNotificationDetails('repeating channel id',
-        'repeating channel name', 'repeating description');
+    AndroidNotificationDetails(NotificationConstants.notification_channel_id,
+        NotificationConstants.notification_channel_name, NotificationConstants.notification_channel_desscription);
   var iOSPlatformChannelSpecifics =
       IOSNotificationDetails();
   var platformChannelSpecifics = NotificationDetails(
@@ -34,7 +35,6 @@ void main() async {
   await scheduleNotifications();
 }
 class MyApp extends StatelessWidget {
-  final wordPair = WordPair.random();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,7 +51,6 @@ class MyApp extends StatelessWidget {
 class KailWidgetState extends State<KailWidget> {
   final _suggestions = <KailActivity>[];
   final _biggerFont = const TextStyle(fontSize: 18.0); 
-  final Set<WordPair> _saved = Set<WordPair>(); 
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +73,6 @@ class KailWidgetState extends State<KailWidget> {
 
         final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
-          // _suggestions.addAll(generateWordPairs().take(10)); /*4*/
           _suggestions.add(KailActivity("yoga","09:30 am",AssetConstants.IMG_YOGA));
           _suggestions.add(KailActivity("sleep","23:00 pm",AssetConstants.IMG_SLEEP));
         }
