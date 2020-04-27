@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kail/add_notification_widget.dart';
 import 'package:kail/constants/asset_constants.dart';
 import 'package:kail/constants/notification_constants.dart';
 import 'package:kail/kail_activity.dart';
@@ -58,6 +59,7 @@ class KailWidgetState extends State<KailWidget> {
     appBar: AppBar(
         title: Text('Howdy'),
         actions: <Widget>[      // Add 3 lines from here...
+          IconButton(icon: Icon(Icons.add), onPressed: _addKailActivity),
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
         ],    
       ),
@@ -131,6 +133,16 @@ class KailWidgetState extends State<KailWidget> {
     );
 
   void _pushSaved() {
+  }
+
+  void _addKailActivity(){
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return AddKailActivity();
+        }
+      )
+    );
   }
 }
 
