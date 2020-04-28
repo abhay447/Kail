@@ -75,8 +75,8 @@ class KailWidgetState extends State<KailWidget> {
 
         final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
-          _suggestions.add(KailActivity("yoga","09:30 am",AssetConstants.IMG_YOGA));
-          _suggestions.add(KailActivity("sleep","23:00 pm",AssetConstants.IMG_SLEEP));
+          _suggestions.add(KailActivity.from3("yoga","09:30 am",AssetConstants.IMG_YOGA));
+          _suggestions.add(KailActivity.from3("sleep","23:00 pm",AssetConstants.IMG_SLEEP));
         }
         return _buildRow(_suggestions[index]);
       });
