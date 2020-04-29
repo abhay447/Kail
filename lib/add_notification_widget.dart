@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
 import 'package:kail/kail_schedule.dart';
 
@@ -15,6 +16,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
   final _formKey = GlobalKey<FormState>();
   var _kailActivity = new KailActivity();
   var _kailSchedule = new KailSchedule();
+  KailDao _kailDao = KailDao();
   String _hour = "00";
   String _min = "00";
   Widget build(BuildContext context) {
@@ -109,6 +111,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
                       );
                     } else {
                       _formKey.currentState.save();
+                      _kailActivity.schedule = _kailSchedule;
                       Navigator.pop(context);
                     }
 

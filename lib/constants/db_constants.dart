@@ -1,11 +1,11 @@
 class DBConstants{
-  static final String KAIL_DB_PATH = "kail.db";
+  static final String KAIL_DB_PATH = "kail_test1.db";
 
   static final String KAIL_ACTIVTITY_CREATE_TABLE_SQL_V1 = """
     CREATE TABLE KAIL_ACTIVITY(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name STRING,
-      image_path STRING
+      acitivity_type STRING
     )
   """;
 

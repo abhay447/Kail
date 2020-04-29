@@ -4,15 +4,15 @@ class KailActivity{
   String name;
   KailSchedule schedule;
   String nextOccurence;
-  String imageLocation;
+  String activity_type;
 
   KailActivity(){
     
   }
   
-  KailActivity.from3(String _name,String _nextOccurence, String _imageLocation){
+  KailActivity.from3(String _name,String _nextOccurence, String _activity_type){
     this.name = _name;
     this.nextOccurence = _nextOccurence;
-    this.imageLocation = _imageLocation;
+    this.activity_type = _activity_type;
   }
 }
