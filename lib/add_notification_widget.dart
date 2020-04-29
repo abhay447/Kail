@@ -15,6 +15,8 @@ class AddKailActivityForm extends State<AddKailActivity>{
   final _formKey = GlobalKey<FormState>();
   var _kailActivity = new KailActivity();
   var _kailSchedule = new KailSchedule();
+  String _hour = "00";
+  String _min = "00";
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -23,11 +25,12 @@ class AddKailActivityForm extends State<AddKailActivity>{
       body : Form(
         key: _formKey,
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            Text("Activity Name",style:TextStyle(fontSize: 21)),
             TextFormField(
               decoration: const InputDecoration(
-                hintText: 'Activity Name',
+                hintText: '',
               ),
               validator: (value) {
                 if (value.isEmpty) {
@@ -39,57 +42,52 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   this._kailActivity.name = value;
               }
             ),
-            Text(
-              "Days",
-            ),
+            Text("Days",style:TextStyle(fontSize: 21)),
             getDaysCheckbox(_kailSchedule),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(" "),
-                Expanded(
-                  child: 
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Hour',
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        if(int.parse(value) > 24 || int.parse(value) < 0){
-                          return 'Between 0 and 24 only';
-                        }
-                        return null;
-                      },
-                      onSaved: (String value) {
-                          this._kailSchedule.hour = int.parse(value);
-                      }
-                    ),
-                ),
-                Text(" "),
-                Expanded(
-                  child: 
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Minute',
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        if(int.parse(value) > 60 || int.parse(value) < 0){
-                          return 'Between 0 and 60 only';
-                        }
-                        return null;
-                      },
-                    onSaved: (String value) {
-                        this._kailSchedule.minute = int.parse(value);
-                    }
-                    ),
-                ),              ],
+                Text('$_hour',style: TextStyle(fontSize: 21)),
+                Text(':',style: TextStyle(fontSize: 21)),
+                Text('$_min',style: TextStyle(fontSize: 21)),          
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('HH',style: TextStyle(fontSize: 21)),
+                Text(':',style: TextStyle(fontSize: 21)),
+                Text('MM',style: TextStyle(fontSize: 21)),          
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+              Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: RaisedButton(
+                onPressed: () {
+                  // Validate will return true if the form is valid, or false if
+                  // the form is invalid.
+                  // if (_formKey.currentState.validate()) {
+                  //   // Process data.
+                  // }
+                    Future<TimeOfDay> selectedTime = showTimePicker(
+                      initialTime: TimeOfDay.now(),
+                      context: context,
+                    );
+                    selectedTime.then(
+                      (timeValue) => setState((){
+                        _hour = timeValue.hour.toString().padLeft(2, "0");
+                        _min = timeValue.minute.toString().padLeft(2, "0");
+                        _kailSchedule.hour = timeValue.hour;
+                        _kailSchedule.minute = timeValue.minute;
+                      })
+                    );
+                  // _formKey.currentState;
+                },
+                child: Text('Pick Time'),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -101,13 +99,29 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   //   // Process data.
                   // }
                   if (_formKey.currentState.validate()) {
-                  _formKey.currentState.save();
+                    if(_kailSchedule.days.isEmpty){
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Days not selected"),
+                            content: Text("Please select one or more days to schedule"),
+                          )
+                      );
+                    } else {
+                      _formKey.currentState.save();
+                      Navigator.pop(context);
+                    }
+
                   }
                   // _formKey.currentState;
                 },
                 child: Text('Submit'),
               ),
             ),
+            ]
+              
+            )
+            
           ],
         ),
       )

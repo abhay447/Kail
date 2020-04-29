@@ -26,6 +26,7 @@ scheduleNotifications() async {
   await flutterLocalNotificationsPlugin.show(
     0, 'plain title', 'plain body', platformChannelSpecifics,
     payload: 'item x');
+    
   return flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
       'repeating body', RepeatInterval.Hourly, platformChannelSpecifics);
 }
