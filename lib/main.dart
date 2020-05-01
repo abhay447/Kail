@@ -54,7 +54,6 @@ class MyApp extends StatelessWidget {
 }
 
 class KailWidgetState extends State<KailWidget> {
-  final _suggestions = <KailActivity>[];
   final _biggerFont = const TextStyle(fontSize: 18.0); 
 
   @override
@@ -67,25 +66,35 @@ class KailWidgetState extends State<KailWidget> {
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
         ],    
       ),
-      body: _buildSuggestions(),
+      body: FutureBuilder<List<KailActivity>>(
+        future: KailDao().listKailActivities(),
+        builder : (BuildContext context, AsyncSnapshot<List<KailActivity>> snapshot){
+          if(snapshot.hasData){
+            return _buildSuggestions(snapshot.data);
+          } else{
+            return _buildSuggestions(new List<KailActivity>());
+          }
+        }
+      )
     );
   }
 
-  Widget _buildSuggestions() {
+  Widget _buildSuggestions(List<KailActivity> _suggestions) {
     return Container(
       color: Colors.white,
       child : ListView.builder(
       
       padding: const EdgeInsets.all(5.0),
+      itemCount: _suggestions.length,
       itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return Divider(); /*2*/
-        _s
-        final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.add(KailActivity.from3("yoga","09:30 am",ActivityTypeConstants.FITNESS));
-          _suggestions.add(KailActivity.from3("sleep","23:00 pm",ActivityTypeConstants.REST));
+        // if (i.isOdd) return Divider(); /*2*/
+        // final index = i ~/ 2; /*3*/
+
+        if(_suggestions.length > 0){
+          return _buildRow(_suggestions[i]);
+        } else {
+          return new Text("such empty");
         }
-        return _buildRow(_suggestions[index]);
       })
     );
   }
@@ -130,7 +139,9 @@ class KailWidgetState extends State<KailWidget> {
                   children : [
                     IconButton(icon: Icon(Icons.edit), color: Colors.white, onPressed: _pushSaved),
                     IconButton(icon: Icon(Icons.snooze),color: Colors.white, onPressed: _pushSaved),
-                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), onPressed: _pushSaved),
+                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), onPressed: () => {
+                      KailDao().deleteActivity(kailActivity)
+                    }),
                   ]
                 )
               ]
@@ -143,14 +154,17 @@ class KailWidgetState extends State<KailWidget> {
   void _pushSaved() {
   }
 
-  void _addKailActivity(){
-    Navigator.of(context).push(
+  void _addKailActivity() async{
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return AddKailActivity();
         }
       )
     );
+    setState(() {
+      build(context);
+    });
   }
 }
 

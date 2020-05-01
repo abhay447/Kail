@@ -57,8 +57,10 @@ class KailDao {
     for(var scheduleRow in scheduleResultSet){
         schedule.days.add(scheduleRow["days"]);
     }
-    schedule.hour = scheduleResultSet[0]["hour"];
-    schedule.minute = scheduleResultSet[0]["minute"];
+    if(scheduleResultSet.length>0){
+      schedule.hour = scheduleResultSet[0]["hour"];
+      schedule.minute = scheduleResultSet[0]["minute"];
+    }
     return schedule;
   }
 
@@ -102,6 +104,22 @@ class KailDao {
     }
     
     return kailActivity;
+  }
+
+  void deleteActivity(KailActivity kailActivity) async{
+    var batch = _kailDatabase.batch();
+    await _kailDatabase.delete(
+      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
+      where: 'id=?',
+      whereArgs: [kailActivity.id]
+    );
+
+    await _kailDatabase.delete(
+      DBConstants.KAIL_SCHEDULE_TABLE_NAME,
+      where: 'activity_id=?',
+      whereArgs: [kailActivity.id]
+    );
+    batch.commit();
   }
 
   factory KailDao() {

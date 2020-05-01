@@ -1,5 +1,5 @@
 class DBConstants{
-  static final String KAIL_DB_PATH = "kail_test5.db";
+  static final String KAIL_DB_PATH = "kail_test6.db";
   static final String KAIL_ACTIVITY_TABLE_NAME = "KAIL_ACTIVITY";
   static final String KAIL_SCHEDULE_TABLE_NAME = "KAIL_SCHEDULE";
 
