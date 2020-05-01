@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kail/constants/activity_type_constants.dart';
 import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
 import 'package:kail/kail_schedule.dart';
@@ -19,6 +20,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
   KailDao _kailDao = KailDao();
   String _hour = "00";
   String _min = "00";
+  String _activityType = ActivityTypeConstants.REST;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -44,6 +46,10 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   this._kailActivity.name = value;
               }
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [Text("Activity Type",style:TextStyle(fontSize: 21)),getActivityTypeDropDown()],
+              ),
             Text("Days",style:TextStyle(fontSize: 21)),
             getDaysCheckbox(_kailSchedule),
             Row(
@@ -111,8 +117,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
                       );
                     } else {
                       _formKey.currentState.save();
+                      _kailActivity.activityType = _activityType;
                       _kailActivity.schedule = _kailSchedule;
-                      _kailDao.insertKailAcitivity(_kailActivity);
+                      _kailDao.saveKailAcitivity(_kailActivity);
                       Navigator.pop(context);
                     }
 
@@ -141,7 +148,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
   var _isFriday = false;
   var _isSaturday = false;
 
-  getDaysCheckbox(KailSchedule _kailSchedule) {
+  Widget getDaysCheckbox(KailSchedule _kailSchedule) {
     return 
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 10.0),
@@ -249,4 +256,43 @@ class AddKailActivityForm extends State<AddKailActivity>{
       ),
     );
   }
+
+  Widget getActivityTypeDropDown(){
+    return DropdownButton<String>(
+      value: _activityType,
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(
+        color: Colors.deepPurple
+      ),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          _activityType = newValue;
+        });
+      },
+      items: <String>[
+        ActivityTypeConstants.REST,
+        ActivityTypeConstants.MUSIC, 
+        ActivityTypeConstants.FITNESS, 
+        ActivityTypeConstants.FOOD,
+        ActivityTypeConstants.FAMILY,
+        ActivityTypeConstants.CALL,
+        ActivityTypeConstants.GAMES,
+        ActivityTypeConstants.READING,
+      ]
+        .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        })
+        .toList(),
+    );
+  }
+
 }

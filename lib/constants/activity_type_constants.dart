@@ -11,6 +11,7 @@ class ActivityTypeConstants{
   static final String FAMILY = "FAMILY";
   static final String CALL = "CALL";
   static final String GAMES = "GAMES";
+  static final String READING = "READING";
   static final Map<String,Icon> _activity_icon_map = {
     REST : Icon(Icons.battery_alert,color: Colors.white),
     MUSIC : Icon(Icons.library_music,color: Colors.white),
@@ -19,6 +20,7 @@ class ActivityTypeConstants{
     FAMILY : Icon(Icons.people,color: Colors.white),
     CALL : Icon(Icons.call,color: Colors.white),
     GAMES : Icon(Icons.videogame_asset,color: Colors.white),
+    READING : Icon(Icons.book,color: Colors.white),
   };
 
   static getIconforActivityType(String activity_type){

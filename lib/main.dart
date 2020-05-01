@@ -79,7 +79,7 @@ class KailWidgetState extends State<KailWidget> {
       padding: const EdgeInsets.all(5.0),
       itemBuilder: /*1*/ (context, i) {
         if (i.isOdd) return Divider(); /*2*/
-
+        _s
         final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
           _suggestions.add(KailActivity.from3("yoga","09:30 am",ActivityTypeConstants.FITNESS));
@@ -112,7 +112,7 @@ class KailWidgetState extends State<KailWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         
         children: [
-          ActivityTypeConstants.getIconforActivityType(kailActivity.activity_type),
+          ActivityTypeConstants.getIconforActivityType(kailActivity.activityType),
 
           Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
