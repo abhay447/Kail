@@ -85,13 +85,13 @@ class KailWidgetState extends State<KailWidget> {
       child : ListView.builder(
       
       padding: const EdgeInsets.all(5.0),
-      itemCount: _suggestions.length,
+      itemCount: _suggestions.length*2,
       itemBuilder: /*1*/ (context, i) {
-        // if (i.isOdd) return Divider(); /*2*/
-        // final index = i ~/ 2; /*3*/
+        if (i.isOdd) return Divider(); /*2*/
+        final index = i ~/ 2; /*3*/
 
         if(_suggestions.length > 0){
-          return _buildRow(_suggestions[i]);
+          return _buildRow(_suggestions[index]);
         } else {
           return new Text("such empty");
         }
@@ -139,9 +139,7 @@ class KailWidgetState extends State<KailWidget> {
                   children : [
                     IconButton(icon: Icon(Icons.edit), color: Colors.white, onPressed: _pushSaved),
                     IconButton(icon: Icon(Icons.snooze),color: Colors.white, onPressed: _pushSaved),
-                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), onPressed: () => {
-                      KailDao().deleteActivity(kailActivity)
-                    }),
+                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), onPressed: () => deleteActivity(kailActivity)),
                   ]
                 )
               ]
@@ -151,19 +149,31 @@ class KailWidgetState extends State<KailWidget> {
         // )
     );
 
-  void _pushSaved() {
+  void deleteActivity(KailActivity kailActivity) {
+    KailDao()
+      .deleteActivity(kailActivity)
+      .then((value) => {
+          setState(() {
+            build(context);
+          })
+      });
   }
 
-  void _addKailActivity() async{
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
+  void _pushSaved(){
+
+  }
+
+  void _addKailActivity() {
+    Navigator.of(context).push(
+      MaterialPageRoute<int>(
+        builder: (context) {
           return AddKailActivity();
         }
       )
-    );
-    setState(() {
-      build(context);
+    ).then((value) => {
+      setState(() {
+        build(context);
+      })
     });
   }
 }

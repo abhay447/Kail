@@ -106,9 +106,9 @@ class KailDao {
     return kailActivity;
   }
 
-  void deleteActivity(KailActivity kailActivity) async{
+  Future<int> deleteActivity(KailActivity kailActivity) async{
     var batch = _kailDatabase.batch();
-    await _kailDatabase.delete(
+    int id = await _kailDatabase.delete(
       DBConstants.KAIL_ACTIVITY_TABLE_NAME,
       where: 'id=?',
       whereArgs: [kailActivity.id]
@@ -120,6 +120,7 @@ class KailDao {
       whereArgs: [kailActivity.id]
     );
     batch.commit();
+    return id;
   }
 
   factory KailDao() {
