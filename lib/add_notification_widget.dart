@@ -112,6 +112,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
                     } else {
                       _formKey.currentState.save();
                       _kailActivity.schedule = _kailSchedule;
+                      _kailDao.insertKailAcitivity(_kailActivity);
                       Navigator.pop(context);
                     }
 
