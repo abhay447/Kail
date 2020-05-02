@@ -3,7 +3,7 @@ import 'package:kail/kail_schedule.dart';
 class KailActivity{
   int id;
   String name;
-  KailSchedule schedule;
+  List<KailSchedule> schedules;
   String nextOccurence;
   String activityType;
 

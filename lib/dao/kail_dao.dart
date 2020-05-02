@@ -39,38 +39,108 @@ class KailDao {
           activityRow["activity_type"] 
         );
       activity.id = activityRow["id"];
-      KailSchedule schedule = await getScheduleForActivity(activity);
-      activity.schedule = schedule;
+      List<KailSchedule> schedules = await getSchedulesForActivity(activity);
+      activity.schedules = schedules;
       activityList.add(activity);
     }
 
     return activityList;
   }
 
-  Future<KailSchedule> getScheduleForActivity(KailActivity kailActivity) async {
-    KailSchedule schedule = new KailSchedule();
+  Future<List<KailActivity>> listKailActivitiesbyNameAndType(String name,String type) async {
+    List<KailActivity> activityList = new List();
+    var activityResultSet = await _kailDatabase.query(
+      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
+      where: 'name=? and activity_type=?',
+      whereArgs: [name,type]
+    );
+    for(var activityRow in activityResultSet){
+      var activity = new KailActivity.from3(
+          activityRow["name"], 
+          "_nextOccurence", 
+          activityRow["activity_type"] 
+        );
+      activity.id = activityRow["id"];
+      List<KailSchedule> schedules = await getSchedulesForActivity(activity);
+      activity.schedules = schedules;
+      activityList.add(activity);
+    }
+
+    return activityList;
+  }
+
+  Future<List<KailActivity>> listKailActivitiesbyID(int id) async {
+    List<KailActivity> activityList = new List();
+    var activityResultSet = await _kailDatabase.query(
+      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
+      where: 'id=?',
+      whereArgs: [id]
+    );
+    for(var activityRow in activityResultSet){
+      var activity = new KailActivity.from3(
+          activityRow["name"], 
+          "_nextOccurence", 
+          activityRow["activity_type"] 
+        );
+      activity.id = activityRow["id"];
+      List<KailSchedule> schedules = await getSchedulesForActivity(activity);
+      activity.schedules = schedules;
+      activityList.add(activity);
+    }
+
+    return activityList;
+  }
+
+  Future<List<KailSchedule>> getSchedulesForActivity(KailActivity kailActivity) async {
+    List<KailSchedule> schedules = new List();
     var scheduleResultSet = await _kailDatabase.query(
       DBConstants.KAIL_SCHEDULE_TABLE_NAME,
       where: 'activity_id=?',
       whereArgs: [kailActivity.id]
     );
     for(var scheduleRow in scheduleResultSet){
-        schedule.days.add(scheduleRow["days"]);
+      KailSchedule schedule = new KailSchedule();
+      schedule.day = scheduleRow["days"];
+      schedule.hour = scheduleRow["hour"];
+      schedule.minute = scheduleRow["minute"];
+      schedule.notificationID = scheduleRow["notification_id"];
+      schedule.id = scheduleRow['id'];
+      schedules.add(schedule);
     }
-    if(scheduleResultSet.length>0){
-      schedule.hour = scheduleResultSet[0]["hour"];
-      schedule.minute = scheduleResultSet[0]["minute"];
-    }
-    return schedule;
+    return schedules;
+  }
+
+  // Future<List<int>> getNotificationsForActivity(KailActivity kailActivity) async {
+  //   List<int> notification_ids = new List();
+  //   var scheduleResultSet = await _kailDatabase.query(
+  //     DBConstants.KAIL_SCHEDULE_TABLE_NAME,
+  //     where: 'activity_id=?',
+  //     whereArgs: [kailActivity.id]
+  //   );
+  //   for(var scheduleRow in scheduleResultSet){
+  //       notification_ids.add(scheduleRow["notification_id"]);
+  //   }
+  //   return notification_ids;
+  // }
+
+  Future<int> deleteKailAcitvity(KailActivity kailAcitivity) async{
+    return _kailDatabase.delete(
+      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
+      where: 'id=?',
+      whereArgs: [kailAcitivity.id]
+    );
+  }
+  
+
+  Future<int> deleteKailAcitvitySchedules(KailActivity kailAcitivity) async{
+    return _kailDatabase.delete(
+      DBConstants.KAIL_SCHEDULE_TABLE_NAME,
+      where: 'activity_id=?',
+      whereArgs: [kailAcitivity.id]
+    );
   }
 
   Future<KailActivity> saveKailAcitivity(KailActivity kailActivity) async {
-    var batch = _kailDatabase.batch();
-    await _kailDatabase.delete(
-      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
-      where: 'name=? and activity_type=?',
-      whereArgs: [kailActivity.name,kailActivity.activityType]
-    );
     Map<String,dynamic> insertionMap = {
       'name': kailActivity.name,
       'activity_type': kailActivity.activityType,
@@ -79,23 +149,20 @@ class KailDao {
       DBConstants.KAIL_ACTIVITY_TABLE_NAME, 
       insertionMap
     );
-    await saveKailSchedules(kailActivity);
-    batch.commit();
+
     return kailActivity;
   }
 
-  Future<KailActivity> saveKailSchedules(KailActivity kailActivity) async {
-    await _kailDatabase.delete(
-      DBConstants.KAIL_SCHEDULE_TABLE_NAME,
-      where: 'activity_id=?',
-      whereArgs: [kailActivity.id]
-    );
-    for(int day in kailActivity.schedule.days){
+  Future<KailActivity> saveKailSchedules(
+    KailActivity kailActivity) async {
+    
+    for(var schedule in kailActivity.schedules){
       Map<String,dynamic> insertionMap = {
         'activity_id': kailActivity.id,
-        'day': day,
-        'hour': kailActivity.schedule.hour,
-        'minute': kailActivity.schedule.minute
+        'day':schedule.day,
+        'hour': schedule.hour,
+        'minute': schedule.minute,
+        'notification_id': schedule.notificationID
       };
       await _kailDatabase.insert(
         DBConstants.KAIL_SCHEDULE_TABLE_NAME, 
@@ -106,21 +173,8 @@ class KailDao {
     return kailActivity;
   }
 
-  Future<int> deleteActivity(KailActivity kailActivity) async{
-    var batch = _kailDatabase.batch();
-    int id = await _kailDatabase.delete(
-      DBConstants.KAIL_ACTIVITY_TABLE_NAME,
-      where: 'id=?',
-      whereArgs: [kailActivity.id]
-    );
-
-    await _kailDatabase.delete(
-      DBConstants.KAIL_SCHEDULE_TABLE_NAME,
-      where: 'activity_id=?',
-      whereArgs: [kailActivity.id]
-    );
-    batch.commit();
-    return id;
+  Batch getBatch(){
+    return _kailDatabase.batch();
   }
 
   factory KailDao() {

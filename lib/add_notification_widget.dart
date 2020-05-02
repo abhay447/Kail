@@ -1,10 +1,13 @@
 
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kail/constants/activity_type_constants.dart';
 import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
 import 'package:kail/kail_schedule.dart';
+import 'package:kail/service/kail_activity_service.dart';
 
 class AddKailActivity extends StatefulWidget{
   @override
@@ -17,9 +20,13 @@ class AddKailActivityForm extends State<AddKailActivity>{
   final _formKey = GlobalKey<FormState>();
   var _kailActivity = new KailActivity();
   var _kailSchedule = new KailSchedule();
-  KailDao _kailDao = KailDao();
-  String _hour = "00";
-  String _min = "00";
+  KailActivityService _kailActivityService = new KailActivityService();
+  String _hourStr = "00";
+  String _minStr = "00";
+  int _hour = 0;
+  int _minute = 0;
+  Set<int> _days = new HashSet();
+
   String _activityType = ActivityTypeConstants.REST;
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,9 +62,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('$_hour',style: TextStyle(fontSize: 21)),
+                Text('$_hourStr',style: TextStyle(fontSize: 21)),
                 Text(':',style: TextStyle(fontSize: 21)),
-                Text('$_min',style: TextStyle(fontSize: 21)),          
+                Text('$_minStr',style: TextStyle(fontSize: 21)),          
               ],
             ),
             Row(
@@ -86,10 +93,10 @@ class AddKailActivityForm extends State<AddKailActivity>{
                     );
                     selectedTime.then(
                       (timeValue) => setState((){
-                        _hour = timeValue.hour.toString().padLeft(2, "0");
-                        _min = timeValue.minute.toString().padLeft(2, "0");
-                        _kailSchedule.hour = timeValue.hour;
-                        _kailSchedule.minute = timeValue.minute;
+                        _hour = timeValue.hour;
+                        _minute = timeValue.minute;
+                        _hourStr = _hour.toString().padLeft(2, "0");
+                        _minStr = _minute.toString().padLeft(2, "0");
                       })
                     );
                   // _formKey.currentState;
@@ -107,7 +114,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   //   // Process data.
                   // }
                   if (_formKey.currentState.validate()) {
-                    if(_kailSchedule.days.isEmpty){
+                    if(_days.isEmpty){
                       showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -118,11 +125,16 @@ class AddKailActivityForm extends State<AddKailActivity>{
                     } else {
                       _formKey.currentState.save();
                       _kailActivity.activityType = _activityType;
-                      _kailActivity.schedule = _kailSchedule;
-                      _kailDao.saveKailAcitivity(_kailActivity)
+                      _kailActivity.schedules = new List();
+                      for(int day in _days){
+                        _kailActivity.schedules.add(
+                          KailSchedule.from3(day,_hour,_minute)
+                        );
+                      }
+                      _kailActivityService.saveAndScheduledActivity(_kailActivity)
                       // .timeout(Duration(seconds: 10))
                       .then((value) => {
-                          Navigator.pop(context,value.id)
+                          Navigator.pop(context)
                       });
                     }
 
@@ -164,9 +176,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isSunday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(0);
-                } else if (_kailSchedule.days.contains(0)){
-                  _kailSchedule.days.remove(0);
+                  _days.add(0);
+                } else if (_days.contains(7)){
+                  _days.remove(7);
                 }
               });
             },
@@ -178,9 +190,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isMonday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(1);
-                } else if (_kailSchedule.days.contains(1)){
-                  _kailSchedule.days.remove(1);
+                  _days.add(1);
+                } else if (_days.contains(1)){
+                  _days.remove(1);
                 }
               });
             },
@@ -192,9 +204,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isTuesday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(2);
-                } else if (_kailSchedule.days.contains(2)){
-                  _kailSchedule.days.remove(2);
+                  _days.add(2);
+                } else if (_days.contains(2)){
+                  _days.remove(2);
                 }
               });
             },
@@ -206,9 +218,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isWednesday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(3);
-                } else if (_kailSchedule.days.contains(3)){
-                  _kailSchedule.days.remove(3);
+                  _days.add(3);
+                } else if (_days.contains(3)){
+                  _days.remove(3);
                 }
               });
             },
@@ -220,9 +232,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isThursday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(4);
-                } else if (_kailSchedule.days.contains(4)){
-                  _kailSchedule.days.remove(4);
+                  _days.add(4);
+                } else if (_days.contains(4)){
+                  _days.remove(4);
                 }
               });
             },
@@ -234,9 +246,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isFriday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(5);
-                } else if (_kailSchedule.days.contains(5)){
-                  _kailSchedule.days.remove(5);
+                  _days.add(5);
+                } else if (_days.contains(5)){
+                  _days.remove(5);
                 }
               });
             },
@@ -248,9 +260,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isSaturday = newValue;
                 if(newValue){
-                  _kailSchedule.days.add(6);
-                } else if (_kailSchedule.days.contains(6)){
-                  _kailSchedule.days.remove(6);
+                  _days.add(6);
+                } else if (_days.contains(6)){
+                  _days.remove(6);
                 }
               });
             },

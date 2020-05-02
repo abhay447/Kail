@@ -6,6 +6,7 @@ import 'package:kail/add_notification_widget.dart';
 import 'package:kail/constants/notification_constants.dart';
 import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
+import 'package:kail/service/kail_activity_service.dart';
 
 import 'constants/activity_type_constants.dart';
 
@@ -25,9 +26,6 @@ scheduleNotifications() async {
       IOSNotificationDetails();
   var platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-    0, 'plain title', 'plain body', platformChannelSpecifics,
-    payload: 'item x');
     
   return flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
       'repeating body', RepeatInterval.Hourly, platformChannelSpecifics);
@@ -36,6 +34,7 @@ scheduleNotifications() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await KailDao().init();
+  await KailActivityService().init();
   runApp(MyApp());
   await scheduleNotifications();
 }
@@ -150,8 +149,8 @@ class KailWidgetState extends State<KailWidget> {
     );
 
   void deleteActivity(KailActivity kailActivity) {
-    KailDao()
-      .deleteActivity(kailActivity)
+    KailActivityService()
+      .deleteScheduledActivity(kailActivity)
       .then((value) => {
           setState(() {
             build(context);

@@ -1,5 +1,5 @@
 class DBConstants{
-  static final String KAIL_DB_PATH = "kail_test6.db";
+  static final String KAIL_DB_PATH = "kail_test9.db";
   static final String KAIL_ACTIVITY_TABLE_NAME = "KAIL_ACTIVITY";
   static final String KAIL_SCHEDULE_TABLE_NAME = "KAIL_SCHEDULE";
 
@@ -15,10 +15,10 @@ class DBConstants{
     CREATE TABLE IF NOT EXISTS KAIL_SCHEDULE(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       activity_id INTEGER,
+      notification_id INTEGER,
       day INTEGER,
       hour INTEGER,
       minute INTEGER
     )
-  """;
-  
+  """; 
 }
