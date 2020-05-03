@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kail/constants/activity_type_constants.dart';
 import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
@@ -10,24 +11,103 @@ import 'package:kail/kail_schedule.dart';
 import 'package:kail/service/kail_activity_service.dart';
 
 class AddKailActivity extends StatefulWidget{
+  KailActivity _existingActivity;
+  AddKailActivity(KailActivity exisitingActivity){
+    this._existingActivity = exisitingActivity;
+  }
   @override
   AddKailActivityForm createState() {
-    return AddKailActivityForm();
+    return AddKailActivityForm(this._existingActivity);
   }
 }
 
 class AddKailActivityForm extends State<AddKailActivity>{
+  KailActivity _existingActivity;
   final _formKey = GlobalKey<FormState>();
   var _kailActivity = new KailActivity();
   var _kailSchedule = new KailSchedule();
   KailActivityService _kailActivityService = new KailActivityService();
-  String _hourStr = "00";
-  String _minStr = "00";
+
+  TextEditingController activityNameController = TextEditingController(text: "");
   int _hour = 0;
   int _minute = 0;
   Set<int> _days = new HashSet();
+  TimeOfDay pickerTime = TimeOfDay.now();
+
+  var _isSunday = false;
+  var _isMonday = false;
+  var _isTuesday = false;
+  var _isWednesday = false;
+  var _isThursday = false;
+  var _isFriday = false;
+  var _isSaturday = false;
 
   String _activityType = ActivityTypeConstants.REST;
+
+  AddKailActivityForm(KailActivity existingActivity){
+    this._existingActivity = existingActivity;
+  }
+
+  void initCheckBoxSelected(KailActivity kailActivity){
+    for(KailSchedule schedule in kailActivity.schedules){
+      switch(schedule.day){
+        case 7 :
+          _isSunday=true;
+          break;
+        case 1 :
+          _isMonday=true;
+          break;
+        case 2 :
+          _isTuesday=true;
+          break;
+        case 3 :
+          _isWednesday=true;
+          break;
+        case 4 :
+          _isThursday=true;
+          break;
+        case 5 :
+          _isFriday=true;
+          break;
+        case 6 :
+          _isSaturday=true;
+          break;
+      }
+      this._days.add(schedule.day);
+    }
+  }
+
+  void initTimePickerTime(KailActivity kailActivity){
+    if(kailActivity.schedules.length>0){
+      _hour = kailActivity.schedules[0].hour;
+      _minute = kailActivity.schedules[0].minute;
+      this.pickerTime = new TimeOfDay(
+        hour: _hour,
+        minute: _minute);
+    }
+
+  }
+
+  void initActivityName(KailActivity kailActivity){
+    this.activityNameController.text = kailActivity.name;
+  }
+
+  void initActivityType(KailActivity kailActivity){
+    this._activityType = kailActivity.activityType;
+  }
+
+  @override
+  void initState() {
+      super.initState();
+      if(this._existingActivity != null){
+        initActivityName(this._existingActivity);
+        initActivityType(this._existingActivity);
+        initTimePickerTime(this._existingActivity);
+        initCheckBoxSelected(this._existingActivity);
+        _kailActivity.id = _existingActivity.id;
+      }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -40,6 +120,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
           children: <Widget>[
             Text("Activity Name",style:TextStyle(fontSize: 21)),
             TextFormField(
+              controller: activityNameController,
               decoration: const InputDecoration(
                 hintText: '',
               ),
@@ -62,9 +143,9 @@ class AddKailActivityForm extends State<AddKailActivity>{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('$_hourStr',style: TextStyle(fontSize: 21)),
+                Text(_hour.toString().padLeft(2, "0"),style: TextStyle(fontSize: 21)),
                 Text(':',style: TextStyle(fontSize: 21)),
-                Text('$_minStr',style: TextStyle(fontSize: 21)),          
+                Text(_minute.toString().padLeft(2, "0"),style: TextStyle(fontSize: 21)),          
               ],
             ),
             Row(
@@ -95,8 +176,6 @@ class AddKailActivityForm extends State<AddKailActivity>{
                       (timeValue) => setState((){
                         _hour = timeValue.hour;
                         _minute = timeValue.minute;
-                        _hourStr = _hour.toString().padLeft(2, "0");
-                        _minStr = _minute.toString().padLeft(2, "0");
                       })
                     );
                   // _formKey.currentState;
@@ -155,14 +234,6 @@ class AddKailActivityForm extends State<AddKailActivity>{
 
   }
 
-  var _isSunday = false;
-  var _isMonday = false;
-  var _isTuesday = false;
-  var _isWednesday = false;
-  var _isThursday = false;
-  var _isFriday = false;
-  var _isSaturday = false;
-
   Widget getDaysCheckbox(KailSchedule _kailSchedule) {
     return 
     Padding(
@@ -176,7 +247,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
               setState(() {
                 _isSunday = newValue;
                 if(newValue){
-                  _days.add(0);
+                  _days.add(7);
                 } else if (_days.contains(7)){
                   _days.remove(7);
                 }

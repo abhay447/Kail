@@ -9,34 +9,14 @@ import 'package:kail/kail_activity.dart';
 import 'package:kail/service/kail_activity_service.dart';
 
 import 'constants/activity_type_constants.dart';
+import 'util/time_utils.dart';
 
-scheduleNotifications() async {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-  var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-  var initializationSettingsIOS = IOSInitializationSettings(
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-  var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,onSelectNotification: selectNotification);
-  
-  var androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(NotificationConstants.notification_channel_id,
-        NotificationConstants.notification_channel_name, NotificationConstants.notification_channel_desscription);
-  var iOSPlatformChannelSpecifics =
-      IOSNotificationDetails();
-  var platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    
-  return flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
-      'repeating body', RepeatInterval.Hourly, platformChannelSpecifics);
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await KailDao().init();
   await KailActivityService().init();
   runApp(MyApp());
-  await scheduleNotifications();
 }
 class MyApp extends StatelessWidget {
   @override
@@ -53,7 +33,8 @@ class MyApp extends StatelessWidget {
 }
 
 class KailWidgetState extends State<KailWidget> {
-  final _biggerFont = const TextStyle(fontSize: 18.0); 
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+  List<KailActivity> _suggestions = new List<KailActivity>();
 
   @override
   Widget build(BuildContext context) {
@@ -61,24 +42,45 @@ class KailWidgetState extends State<KailWidget> {
     appBar: AppBar(
         title: Text('Howdy'),
         actions: <Widget>[      // Add 3 lines from here...
-          IconButton(icon: Icon(Icons.add), onPressed: _addKailActivity),
+          IconButton(icon: Icon(Icons.add), onPressed: () => _addKailActivity(null)),
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
         ],    
       ),
-      body: FutureBuilder<List<KailActivity>>(
-        future: KailDao().listKailActivities(),
+      // body: FutureBuilder<List<KailActivity>>(
+      //   future: KailDao().listKailActivities(),
+      //   builder : (BuildContext context, AsyncSnapshot<List<KailActivity>> snapshot){
+      //     if(snapshot.hasData){
+      //       return _buildSuggestions(snapshot.data);
+      //     } else{
+      //       return _buildSuggestions(new List<KailActivity>());
+      //     }
+      //   }
+      // )
+      body: StreamBuilder<List<KailActivity>>(
+        stream: Stream.fromFuture(KailActivityService().listAllActivities()),
         builder : (BuildContext context, AsyncSnapshot<List<KailActivity>> snapshot){
-          if(snapshot.hasData){
-            return _buildSuggestions(snapshot.data);
-          } else{
-            return _buildSuggestions(new List<KailActivity>());
+
+          if (snapshot.hasError)
+            return _buildSuggestions();
+          switch (snapshot.connectionState) {
+            case ConnectionState.none: return _buildSuggestions();
+            case ConnectionState.waiting: return _buildSuggestions();
+            case ConnectionState.active: {
+              _suggestions = snapshot.data;
+              return _buildSuggestions();
+            }
+            case ConnectionState.done: {
+              _suggestions = snapshot.data;
+              return _buildSuggestions();
+            }
           }
+          return _buildSuggestions(); 
         }
       )
     );
   }
 
-  Widget _buildSuggestions(List<KailActivity> _suggestions) {
+  Widget _buildSuggestions() {
     return Container(
       color: Colors.white,
       child : ListView.builder(
@@ -90,7 +92,7 @@ class KailWidgetState extends State<KailWidget> {
         final index = i ~/ 2; /*3*/
 
         if(_suggestions.length > 0){
-          return _buildRow(_suggestions[index]);
+          return _buildRow(index);
         } else {
           return new Text("such empty");
         }
@@ -98,8 +100,9 @@ class KailWidgetState extends State<KailWidget> {
     );
   }
 
-  Widget _buildRow(KailActivity kailActivity) => 
-    Container(
+  Widget _buildRow(int index ) {
+    KailActivity kailActivity = _suggestions[index];
+    return Container(
       decoration: BoxDecoration(
 
             color: Colors.blueAccent,
@@ -126,7 +129,7 @@ class KailWidgetState extends State<KailWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                        kailActivity.name + " @ " + kailActivity.nextOccurence,
+                        kailActivity.name + " @ " + TimeUtils.getNextOccurenceString(kailActivity),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -136,9 +139,9 @@ class KailWidgetState extends State<KailWidget> {
                 Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children : [
-                    IconButton(icon: Icon(Icons.edit), color: Colors.white, onPressed: _pushSaved),
-                    IconButton(icon: Icon(Icons.snooze),color: Colors.white, onPressed: _pushSaved),
-                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), onPressed: () => deleteActivity(kailActivity)),
+                    IconButton(icon: Icon(Icons.edit), color: Colors.white, onPressed: () => _addKailActivity(kailActivity)),
+                    IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), 
+                      onPressed: () => deleteActivity(index,kailActivity)),
                   ]
                 )
               ]
@@ -147,26 +150,29 @@ class KailWidgetState extends State<KailWidget> {
       ),
         // )
     );
+  }
 
-  void deleteActivity(KailActivity kailActivity) {
+  void deleteActivity(int index,KailActivity kailActivity) {
     KailActivityService()
       .deleteScheduledActivity(kailActivity)
       .then((value) => {
-          setState(() {
-            build(context);
-          })
-      });
+        setState(() {
+        _suggestions..removeAt(index);
+        build(context);
+        })
+      } );
+     
   }
 
   void _pushSaved(){
 
   }
 
-  void _addKailActivity() {
+  void _addKailActivity(KailActivity  kailActivity) {
     Navigator.of(context).push(
       MaterialPageRoute<int>(
         builder: (context) {
-          return AddKailActivity();
+          return AddKailActivity(kailActivity);
         }
       )
     ).then((value) => {
