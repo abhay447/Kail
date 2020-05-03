@@ -158,14 +158,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
                 Text(_minute.toString().padLeft(2, "0"),style: TextStyle(fontSize: 21)),          
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('HH',style: TextStyle(fontSize: 21)),
-                Text(':',style: TextStyle(fontSize: 21)),
-                Text('MM',style: TextStyle(fontSize: 21)),          
-              ],
-            ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -190,7 +183,13 @@ class AddKailActivityForm extends State<AddKailActivity>{
                     );
                   // _formKey.currentState;
                 },
-                child: Text('Pick Time'),
+                child: Text('Pick Time',
+                  style:TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold
+                    )
+                  ),
+                color: Colors.blueAccent,
               ),
             ),
             Padding(
@@ -230,7 +229,13 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   }
                   // _formKey.currentState;
                 },
-                child: Text('Submit'),
+                child: Text('Submit',
+                  style:TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold
+                    )
+                  ),
+                color: Colors.blueAccent,
               ),
             ),
             ]
@@ -360,7 +365,8 @@ class AddKailActivityForm extends State<AddKailActivity>{
       iconSize: 24,
       elevation: 16,
       style: TextStyle(
-        color: Colors.deepPurple
+        color: Colors.deepPurple,
+        fontWeight: FontWeight.bold
       ),
       underline: Container(
         height: 2,
