@@ -118,7 +118,10 @@ class AddKailActivityForm extends State<AddKailActivity>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text("Activity Name",style:TextStyle(fontSize: 21)),
+            Text(
+              "Activity Name",
+              style:TextStyle(fontSize: 21,fontWeight: FontWeight.bold)
+            ),
             TextFormField(
               controller: activityNameController,
               decoration: const InputDecoration(
@@ -128,15 +131,22 @@ class AddKailActivityForm extends State<AddKailActivity>{
                 if (value.isEmpty) {
                   return 'Please enter some text';
                 }
+                if(value.length>30){
+                  return 'Please enter some text with length <= 30';
+                }
                 return null;
               },
               onSaved: (String value) {
-                  this._kailActivity.name = value;
+                this._kailActivity.name = value;
               }
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Text("Activity Type",style:TextStyle(fontSize: 21)),getActivityTypeDropDown()],
+              children: [
+                Text("Activity Type",
+                  style:TextStyle(fontSize: 21,fontWeight: FontWeight.bold)),
+                getActivityTypeDropDown()
+              ],
               ),
             Text("Days",style:TextStyle(fontSize: 21)),
             getDaysCheckbox(_kailSchedule),
@@ -363,9 +373,10 @@ class AddKailActivityForm extends State<AddKailActivity>{
       },
       items: <String>[
         ActivityTypeConstants.REST,
+        ActivityTypeConstants.WORK,
+        ActivityTypeConstants.NO_WORK,
+        ActivityTypeConstants.FITNESS,
         ActivityTypeConstants.MUSIC, 
-        ActivityTypeConstants.FITNESS, 
-        ActivityTypeConstants.FOOD,
         ActivityTypeConstants.FAMILY,
         ActivityTypeConstants.CALL,
         ActivityTypeConstants.GAMES,

@@ -40,7 +40,7 @@ class KailWidgetState extends State<KailWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
     appBar: AppBar(
-        title: Text('Howdy'),
+        title: Text('Upcoming Checkpoints'),
         actions: <Widget>[      // Add 3 lines from here...
           IconButton(icon: Icon(Icons.add), onPressed: () => _addKailActivity(null)),
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
@@ -120,32 +120,46 @@ class KailWidgetState extends State<KailWidget> {
 
           ),
       child : Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.start,
         
         children: [
-          ActivityTypeConstants.getIconforActivityType(kailActivity.activityType),
-
-          Column(
+          Container(
+            width: 50.0,
+            child : ActivityTypeConstants.getIconforActivityType(kailActivity.activityType),
+          ),
+          Container(
+            width: 250.0,
+            child : Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                        kailActivity.name + " @ " + TimeUtils.getNextOccurenceString(kailActivity),
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  kailActivity.name.padRight(30) ,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                Row(
+                ),
+                Text(
+                  TimeUtils.getNextOccurenceString(kailActivity),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                ),
+              ]
+            ),
+          ),
+            Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children : [
                     IconButton(icon: Icon(Icons.edit), color: Colors.white, onPressed: () => _addKailActivity(kailActivity)),
                     IconButton(icon: Icon(Icons.delete_forever,color: Colors.white,), 
                       onPressed: () => deleteActivity(index,kailActivity)),
                   ]
-                )
-              ]
-            ),
+            )
         ]
       ),
         // )

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:kail/constants/db_constants.dart';
 import 'package:kail/kail_activity.dart';
 import 'package:kail/kail_schedule.dart';
+import 'package:kail/util/time_utils.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -47,7 +48,9 @@ class KailDao {
       activity.schedules = schedules;
       activityList.add(activity);
     }
-
+    activityList.sort((left,right) => (
+      TimeUtils.getNextOccurenceDate(left).compareTo(TimeUtils.getNextOccurenceDate(right))
+    ));
     return activityList;
   }
 

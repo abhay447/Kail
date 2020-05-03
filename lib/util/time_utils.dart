@@ -5,8 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class TimeUtils {
-  static String getNextOccurenceString(KailActivity kailActivity){
-    var currDate = DateTime.now();
+
+static DateTime getNextOccurenceDate(KailActivity kailActivity){
+  var currDate = DateTime.now();
     int weekMinutes = 7*24*60;
     int currMinuteDiff = (currDate.weekday-1)*24*60 + currDate.hour*60+currDate.minute;
     int leastMinuteDiff = 9223372036854775807;
@@ -26,7 +27,12 @@ class TimeUtils {
       }
     }
 
-    var nextOccurenceDate = currDate.add(Duration(minutes: leastMinuteDiff));
+    return currDate.add(Duration(minutes: leastMinuteDiff));
+
+}
+
+  static String getNextOccurenceString(KailActivity kailActivity){
+    var nextOccurenceDate = getNextOccurenceDate(kailActivity);
     var nextOccurrenceString = 
       nextOccurenceDate.hour.toString().padLeft(2, "0")
       + ":"
