@@ -172,7 +172,7 @@ class AddKailActivityForm extends State<AddKailActivity>{
                   //   // Process data.
                   // }
                     Future<TimeOfDay> selectedTime = showTimePicker(
-                      initialTime: TimeOfDay.now(),
+                      initialTime: this.pickerTime,
                       context: context,
                     );
                     selectedTime.then(

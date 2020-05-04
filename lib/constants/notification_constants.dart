@@ -1,9 +1,9 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationConstants {
-  static final String notification_channel_id = "weekly_notification_channel_id";
-  static final String notification_channel_name = "weekly_notification_channel_name";
-  static final String notification_channel_desscription = "weekly_notification_channel_description";
+  static final String notification_channel_id = "weekly_notification_channel_id_1";
+  static final String notification_channel_name = "weekly_notification_channel_name_1";
+  static final String notification_channel_desscription = "weekly_notification_channel_description_1";
   static final Map<int,Day> index_day_map = {
     7:Day.Sunday,
     1:Day.Monday,
