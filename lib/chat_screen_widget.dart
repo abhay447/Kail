@@ -27,8 +27,24 @@ class _MyHomePageState extends State<MyHomePage> {
     uid: "25649654",
   );
 
-  List<ChatMessage> messages = List<ChatMessage>();
-  var m = List<ChatMessage>();
+  
+  
+   Future<List<ChatMessage>> getChatMessages() async {
+    List<ChatMessage> messages = List<ChatMessage>();
+    messages.add(
+      new ChatMessage(text: "hello1", user: user)
+    );
+    messages.add(
+      new ChatMessage(text: "hello2", user: user)
+    );
+    messages.add(
+      new ChatMessage(text: "hell3", user: user)
+    );
+    messages.add(
+      new ChatMessage(text: "hell4", user: user)
+    );
+    return messages;
+  }
 
   var i = 0;
 
@@ -37,24 +53,24 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void systemMessage() {
-    Timer(Duration(milliseconds: 300), () {
-      if (i < 6) {
-        setState(() {
-          messages = [...messages, m[i]];
-        });
-        i++;
-      }
-      Timer(Duration(milliseconds: 300), () {
-        _chatViewKey.currentState.scrollController
-          ..animateTo(
-            _chatViewKey.currentState.scrollController.position.maxScrollExtent,
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 300),
-          );
-      });
-    });
-  }
+  // void systemMessage() {
+  //   Timer(Duration(milliseconds: 300), () {
+  //     if (i < 6) {
+  //       setState(() {
+  //         messages = [...messages, m[i]];
+  //       });
+  //       i++;
+  //     }
+  //     Timer(Duration(milliseconds: 300), () {
+  //       _chatViewKey.currentState.scrollController
+  //         ..animateTo(
+  //           _chatViewKey.currentState.scrollController.position.maxScrollExtent,
+  //           curve: Curves.easeOut,
+  //           duration: const Duration(milliseconds: 300),
+  //         );
+  //     });
+  //   });
+  // }
 
   void onSend(ChatMessage message) {
     print(message.toJson());
@@ -89,134 +105,133 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("Chat App"),
       ),
-      body: Text(""),
-        //StreamBuilder(
-          // stream: Firestore.instance.collection('messages').snapshots(),
-          // builder: (context, snapshot) {
-          //   if (!snapshot.hasData) {
-          //     return Center(
-          //       child: CircularProgressIndicator(
-          //         valueColor: AlwaysStoppedAnimation<Color>(
-          //           Theme.of(context).primaryColor,
-          //         ),
-          //       ),
-          //     );
-          //   } else {
-          //     List<DocumentSnapshot> items = snapshot.data.documents;
-          //     var messages =
-          //         items.map((i) => ChatMessage.fromJson(i.data)).toList();
-          //     return DashChat(
-          //       key: _chatViewKey,
-          //       inverted: false,
-          //       onSend: onSend,
-          //       sendOnEnter: true,
-          //       textInputAction: TextInputAction.send,
-          //       user: user,
-          //       inputDecoration:
-          //           InputDecoration.collapsed(hintText: "Add message here..."),
-          //       dateFormat: DateFormat('yyyy-MMM-dd'),
-          //       timeFormat: DateFormat('HH:mm'),
-          //       messages: messages,
-          //       showUserAvatar: false,
-          //       showAvatarForEveryMessage: false,
-          //       scrollToBottom: false,
-          //       onPressAvatar: (ChatUser user) {
-          //         print("OnPressAvatar: ${user.name}");
-          //       },
-          //       onLongPressAvatar: (ChatUser user) {
-          //         print("OnLongPressAvatar: ${user.name}");
-          //       },
-          //       inputMaxLines: 5,
-          //       messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
-          //       alwaysShowSend: true,
-          //       inputTextStyle: TextStyle(fontSize: 16.0),
-          //       inputContainerStyle: BoxDecoration(
-          //         border: Border.all(width: 0.0),
-          //         color: Colors.white,
-          //       ),
-          //       onQuickReply: (Reply reply) {
-          //         setState(() {
-          //           messages.add(ChatMessage(
-          //               text: reply.value,
-          //               createdAt: DateTime.now(),
-          //               user: user));
+      body:
+        StreamBuilder(
+          stream: Stream.fromFuture(getChatMessages()),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColor,
+                  ),
+                ),
+              );
+            } else {
+              // List<DocumentSnapshot> items = snapshot.data.documents;
+              var messages =
+                  snapshot.data;
+              return DashChat(
+                key: _chatViewKey,
+                inverted: false,
+                onSend: onSend,
+                sendOnEnter: true,
+                textInputAction: TextInputAction.send,
+                user: user,
+                inputDecoration:
+                    InputDecoration.collapsed(hintText: "Add message here..."),
+                dateFormat: DateFormat('yyyy-MMM-dd'),
+                timeFormat: DateFormat('HH:mm'),
+                messages: messages,
+                showUserAvatar: false,
+                showAvatarForEveryMessage: false,
+                scrollToBottom: false,
+                onPressAvatar: (ChatUser user) {
+                  print("OnPressAvatar: ${user.name}");
+                },
+                onLongPressAvatar: (ChatUser user) {
+                  print("OnLongPressAvatar: ${user.name}");
+                },
+                inputMaxLines: 5,
+                messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
+                alwaysShowSend: true,
+                inputTextStyle: TextStyle(fontSize: 16.0),
+                inputContainerStyle: BoxDecoration(
+                  border: Border.all(width: 0.0),
+                  color: Colors.white,
+                ),
+                onQuickReply: (Reply reply) {
+                  setState(() {
+                    messages.add(ChatMessage(
+                        text: reply.value,
+                        createdAt: DateTime.now(),
+                        user: user));
 
-          //           messages = [...messages];
-          //         });
+                    messages = [...messages];
+                  });
 
-          //         Timer(Duration(milliseconds: 300), () {
-          //           _chatViewKey.currentState.scrollController
-          //             ..animateTo(
-          //               _chatViewKey.currentState.scrollController.position
-          //                   .maxScrollExtent,
-          //               curve: Curves.easeOut,
-          //               duration: const Duration(milliseconds: 300),
-          //             );
+                  Timer(Duration(milliseconds: 300), () {
+                    _chatViewKey.currentState.scrollController
+                      ..animateTo(
+                        _chatViewKey.currentState.scrollController.position
+                            .maxScrollExtent,
+                        curve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 300),
+                      );
 
-          //           if (i == 0) {
-          //             systemMessage();
-          //             Timer(Duration(milliseconds: 600), () {
-          //               systemMessage();
-          //             });
-          //           } else {
-          //             systemMessage();
-          //           }
-          //         });
-          //       },
-          //       onLoadEarlier: () {
-          //         print("laoding...");
-          //       },
-          //       shouldShowLoadEarlier: false,
-          //       showTraillingBeforeSend: true,
-          //       trailing: <Widget>[
-          //         IconButton(
-          //           icon: Icon(Icons.photo),
-          //           onPressed: () async {
-          //             File result = await ImagePicker.pickImage(
-          //               source: ImageSource.gallery,
-          //               imageQuality: 80,
-          //               maxHeight: 400,
-          //               maxWidth: 400,
-          //             );
+                    // if (i == 0) {
+                    //   systemMessage();
+                    //   Timer(Duration(milliseconds: 600), () {
+                    //     systemMessage();
+                    //   });
+                    // } else {
+                    //   systemMessage();
+                    // }
+                  });
+                },
+                onLoadEarlier: () {
+                  print("laoding...");
+                },
+                shouldShowLoadEarlier: false,
+                showTraillingBeforeSend: true,
+                trailing: <Widget>[
+                  // IconButton(
+                  //   icon: Icon(Icons.photo),
+                  //   onPressed: () async {
+                  //     File result = await ImagePicker.pickImage(
+                  //       source: ImageSource.gallery,
+                  //       imageQuality: 80,
+                  //       maxHeight: 400,
+                  //       maxWidth: 400,
+                  //     );
 
-          //             if (result != null) {
-          //               final StorageReference storageRef =
-          //                   FirebaseStorage.instance.ref().child("chat_images");
+                  //     if (result != null) {
+                  //       final StorageReference storageRef =
+                  //           FirebaseStorage.instance.ref().child("chat_images");
 
-          //               StorageUploadTask uploadTask = storageRef.putFile(
-          //                 result,
-          //                 StorageMetadata(
-          //                   contentType: 'image/jpg',
-          //                 ),
-          //               );
-          //               StorageTaskSnapshot download =
-          //                   await uploadTask.onComplete;
+                  //       StorageUploadTask uploadTask = storageRef.putFile(
+                  //         result,
+                  //         StorageMetadata(
+                  //           contentType: 'image/jpg',
+                  //         ),
+                  //       );
+                  //       StorageTaskSnapshot download =
+                  //           await uploadTask.onComplete;
 
-          //               String url = await download.ref.getDownloadURL();
+                  //       String url = await download.ref.getDownloadURL();
 
-          //               ChatMessage message =
-          //                   ChatMessage(text: "", user: user, image: url);
+                  //       ChatMessage message =
+                  //           ChatMessage(text: "", user: user, image: url);
 
-          //               var documentReference = Firestore.instance
-          //                   .collection('messages')
-          //                   .document(DateTime.now()
-          //                       .millisecondsSinceEpoch
-          //                       .toString());
+                  //       var documentReference = Firestore.instance
+                  //           .collection('messages')
+                  //           .document(DateTime.now()
+                  //               .millisecondsSinceEpoch
+                  //               .toString());
 
-          //               Firestore.instance.runTransaction((transaction) async {
-          //                 await transaction.set(
-          //                   documentReference,
-          //                   message.toJson(),
-          //                 );
-          //               });
-          //             }
-          //           },
-          //         )
-          //       ],
-          //     );
-          //   }
-          // }),
-      // )
+                  //       Firestore.instance.runTransaction((transaction) async {
+                  //         await transaction.set(
+                  //           documentReference,
+                  //           message.toJson(),
+                  //         );
+                  //       });
+                  //     }
+                  //   },
+                  // )
+                ],
+              );
+            }
+          }),
     );
   }
 }

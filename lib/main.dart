@@ -8,6 +8,7 @@ import 'package:kail/dao/kail_dao.dart';
 import 'package:kail/kail_activity.dart';
 import 'package:kail/service/kail_activity_service.dart';
 
+import 'chat_screen_widget.dart';
 import 'constants/activity_type_constants.dart';
 import 'util/time_utils.dart';
 
@@ -43,7 +44,7 @@ class KailWidgetState extends State<KailWidget> {
         title: Text('Upcoming Checkpoints'),
         actions: <Widget>[      // Add 3 lines from here...
           IconButton(icon: Icon(Icons.add), onPressed: () => _addKailActivity(null)),
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
+          IconButton(icon: Icon(Icons.chat), onPressed: _pushSaved),
         ],    
       ),
       // body: FutureBuilder<List<KailActivity>>(
@@ -179,6 +180,14 @@ class KailWidgetState extends State<KailWidget> {
   }
 
   void _pushSaved(){
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return MyHomePage();
+        }
+      )
+    );
 
   }
 
